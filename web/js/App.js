@@ -21,6 +21,7 @@ const menuAddBook = document.getElementById("menu_add_book");
 menuAddBook.addEventListener('click', e=>{
     e.preventDefault();
     activeBtnMenu(menuAddBook);
+    viewModule.showNewBookForm();
 });
 const menuPurchaces = document.getElementById("menu_purchaces");
 menuPurchaces.addEventListener('click', e => {
