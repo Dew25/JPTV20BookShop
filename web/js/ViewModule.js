@@ -1,5 +1,6 @@
 import {loginModule} from './LoginModule.js';
 import {authorModule} from './AuthorModule.js';
+import {bookModule} from './BookModule.js';
 
 class ViewModule{
     showLoginForm(){
@@ -76,7 +77,7 @@ class ViewModule{
             document.getElementById('btn_update_author').classList.remove('d-none');
             document.getElementById('titlePageAuthor').innerHTML = 'Редактирование данных автора';
         });
-        authorModule.insertListAuthors();
+        authorModule.insertListAuthors(true);
     };
     showNewBookForm(){
         const content = document.getElementById('content');
@@ -99,7 +100,7 @@ class ViewModule{
                   </div>
                   <div class="form-group">
                     <label for="quantity" class="form-label mt-4">Количество экземпляров</label>
-                    <input type="password" class="form-control" id="quantity" placeholder="Количество экземпляров">
+                    <input type="text" class="form-control" id="quantity" placeholder="Количество экземпляров">
                   </div>
                   <button id="btn_add_book" type="submit" class="btn btn-primary my-3">Добавить книгу</button>
                 </div>
@@ -118,8 +119,9 @@ class ViewModule{
             e.preventDefault();
             bookModule.createNewBook();
         });
-        
-    }
+        authorModule.insertListAuthors(false);
+        bookModule.insertBookOptions(true);
+    };
 }
 const viewModule = new ViewModule();
 export {viewModule};

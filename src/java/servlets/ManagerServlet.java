@@ -7,13 +7,8 @@ package servlets;
 
 import entity.Author;
 import entity.Book;
-import entity.Reader;
-import entity.Role;
-import entity.User;
-import entity.UserRoles;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
@@ -22,6 +17,8 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
+import javax.json.JsonValue;
+import javax.json.stream.JsonParser;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -29,13 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import jsontools.AuthorJsonBuilder;
+import jsontools.BookJsonBuilder;
 import session.AuthorFacade;
 import session.BookFacade;
-import session.ReaderFacade;
-import session.RoleFacade;
-import session.UserFacade;
-import session.UserRolesFacade;
-import tools.PasswordProtected;
 
 /**
  *
@@ -161,9 +154,11 @@ public class ManagerServlet extends HttpServlet {
                 }
                 Book book = new Book();
                 book.setBookName(bookName);
+                book.setPublishedYear(Integer.parseInt(publishedYear));
                 List<Author> authors = new ArrayList<>();
                 for(int i=0; i< selectAuthors.size();i++){
-                    authors.add(authorFacade.find(selectAuthors.get(i)));
+                    String jsonAuthorId = selectAuthors.getString(i);
+                    authors.add(authorFacade.find(Long.parseLong(jsonAuthorId)));
                 }
                 book.setAuthor(authors);
                 book.setQuantity(Integer.parseInt(quantity));
@@ -176,7 +171,14 @@ public class ManagerServlet extends HttpServlet {
                     }
                 break;
             case "/getListBooks":
-                
+                List<Book> listBooks = bookFacade.findAll();
+                BookJsonBuilder bjb = new BookJsonBuilder();
+                job.add("status",true);
+                job.add("info","Создан массив книг");
+                job.add("books",bjb.getBooksJsonArray(listBooks));
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
                 break;
             case "/getBook":
                 
