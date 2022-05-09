@@ -82,25 +82,29 @@ class ViewModule{
     showNewBookForm(){
         const content = document.getElementById('content');
         content.innerHTML = 
-           `<div class="card border-secondary mb-3 mx-auto" style="max-width: 30rem;">
+           `<form id="newBookForm"><div class="card border-secondary mb-3 mx-auto" style="max-width: 30rem;">
                 <h3 class="card-header w-100 text-center ">Новая книга</h3>
                 <div class="card-body">
                   <div class="form-group">
                     <label for="bookName" class="form-label mt-4">Название книги</label>
-                    <input type="text" class="form-control" id="book_name" placeholder="Название книги">
+                    <input type="text" class="form-control" name="bookName" id="book_name" placeholder="Название книги">
                   </div>
                   <div class="form-group">
                     <label for="publishedYear" class="form-label mt-4">Год издания</label>
-                    <input type="text" class="form-control" id="published_year" placeholder="Год издания">
+                    <input type="text" class="form-control" name="publishedYear" id="published_year" placeholder="Год издания">
                   </div>
                   <div class="form-group mt-4">
                     <label for="select_authors" class=" col-form-label mt-2">Список авторов</label>
-                    <select multiple row="5" class="col-sm-10 form-select form-control-plaintext" id="select_authors">
+                    <select multiple row="5" class="col-sm-10 form-select form-control-plaintext" name="selectAuthors" id="select_authors">
                     </select>
                   </div>
                   <div class="form-group">
-                    <label for="quantity" class="form-label mt-4">Количество экземпляров</label>
-                    <input type="text" class="form-control" id="quantity" placeholder="Количество экземпляров">
+                    <label for="price" class="form-label mt-4">Цена</label>
+                    <input type="text" class="form-control" id="price" name="price" placeholder="Цена">
+                  </div>
+                  <div class="form-group">
+                    <label for="cover" class="form-label mt-4">Обложка</label>
+                    <input type="file" class="form-control" id="cover" name="cover" placeholder="Обложка">
                   </div>
                   <button id="btn_add_book" type="submit" class="btn btn-primary my-3">Добавить книгу</button>
                 </div>
@@ -114,8 +118,8 @@ class ViewModule{
                             </select>
                         </div>
                 </div>
-            </div>`;
-        document.getElementById('btn_add_book').addEventListener('click',e => {
+            </div></form>`;
+        document.getElementById('newBookForm').addEventListener('submit',e => {
             e.preventDefault();
             bookModule.createNewBook();
         });

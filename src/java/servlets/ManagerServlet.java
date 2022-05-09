@@ -7,10 +7,16 @@ package servlets;
 
 import entity.Author;
 import entity.Book;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -20,11 +26,13 @@ import javax.json.JsonReader;
 import javax.json.JsonValue;
 import javax.json.stream.JsonParser;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 import jsontools.AuthorJsonBuilder;
 import jsontools.BookJsonBuilder;
 import session.AuthorFacade;
@@ -45,6 +53,7 @@ import session.BookFacade;
     "/updateBook",
   
 })
+@MultipartConfig
 public class ManagerServlet extends HttpServlet {
     
     @EJB private AuthorFacade authorFacade;
@@ -138,14 +147,12 @@ public class ManagerServlet extends HttpServlet {
                 }
                 break;
             case "/createNewBook":
-                jsonReader = Json.createReader(request.getReader());
-                jsonObject = jsonReader.readObject();
-                String bookName = jsonObject.getString("bookName","");
-                String publishedYear = jsonObject.getString("publishedYear","");
-                JsonArray selectAuthors = jsonObject.getJsonArray("selectAuthors");
-                String quantity = jsonObject.getString("quantity","");
+                String bookName = request.getParameter("bookName");
+                String publishedYear = request.getParameter("publishedYear");
+                String[] selectAuthors = request.getParameterValues("selectAuthors");
+                String price = request.getParameter("price");
                 if("".equals(bookName) || "".equals(publishedYear)
-                        || selectAuthors.isEmpty() || "".equals(quantity)){
+                        || selectAuthors.length == 0 || "".equals(price)){
                     job.add("info", "Заполните все поля!");
                     job.add("status", false);
                     try (PrintWriter out = response.getWriter()) {
@@ -156,13 +163,13 @@ public class ManagerServlet extends HttpServlet {
                 book.setBookName(bookName);
                 book.setPublishedYear(Integer.parseInt(publishedYear));
                 List<Author> authors = new ArrayList<>();
-                for(int i=0; i< selectAuthors.size();i++){
-                    String jsonAuthorId = selectAuthors.getString(i);
+                for(int i=0; i < selectAuthors.length; i++){
+                    String jsonAuthorId = selectAuthors[i];
                     authors.add(authorFacade.find(Long.parseLong(jsonAuthorId)));
                 }
                 book.setAuthor(authors);
-                book.setQuantity(Integer.parseInt(quantity));
-                book.setCount(book.getQuantity());
+                book.setPrice(price);
+                book.setCover(getPathToCover(request.getPart("cover")));
                 bookFacade.create(book);
                 job.add("info", "Книга добавлена!");
                     job.add("status", true);
@@ -187,6 +194,29 @@ public class ManagerServlet extends HttpServlet {
                 
                 break;
         }
+    }
+    private String getPathToCover(Part part) throws IOException {
+        String uploadDir = "D:\\UploadDir\\JPTV20BookShop";
+        //String uploadDir = "/opt/UploadDir/JPTV20BookShop";
+        String pathToCover = uploadDir + File.separator + getFileName(part);
+        File file = new File(pathToCover);
+        file.mkdirs();
+        try(InputStream fileContent = part.getInputStream()){
+            Files.copy(fileContent, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+        return pathToCover;
+    }
+    private String getFileName(Part part){
+        final String partHeader = part.getHeader("content-disposition");
+        for (String content : part.getHeader("content-disposition").split(";")){
+            if(content.trim().startsWith("filename")){
+                return content
+                        .substring(content.indexOf('=')+1)
+                        .trim()
+                        .replace("\"",""); 
+            }
+        }
+        return null;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -227,5 +257,8 @@ public class ManagerServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
+    
+
 
 }

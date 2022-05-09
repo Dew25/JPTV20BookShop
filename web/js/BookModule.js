@@ -1,24 +1,12 @@
 import {viewModule} from './ViewModule.js';
 class BookModule{
     createNewBook(){
-        const bookName = document.getElementById('book_name').value;
-        const publishedYear = document.getElementById('published_year').value;
-        const selectedOptions = document.getElementById('select_authors').selectedOptions;
-        let valuesAuthorsId = Array.from(selectedOptions).map(({ value }) => value);
-        console.log(valuesAuthorsId);
-        const quantity = document.getElementById('quantity').value;
-        const newBook = {
-            "bookName": bookName,
-            "publishedYear": publishedYear,
-            "selectAuthors": valuesAuthorsId,
-            "quantity": quantity
-        }
+        const formData = new FormData(document.getElementById('newBookForm'));
+        console.log('bookName = '+formData.get('bookName'));
+        console.log('publishedYear = '+formData.get('publishedYear'));
         const promise = fetch('createNewBook',{
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset:utf8'
-            },
-            body: JSON.stringify(newBook) 
+            body: formData
         });
         promise.then(response => response.json())
                .then(response =>{

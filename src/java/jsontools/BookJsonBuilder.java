@@ -34,8 +34,8 @@ public class BookJsonBuilder {
         job.add("id", book.getId());
         job.add("bookName", book.getBookName());
         job.add("publishedYear", book.getPublishedYear());
-        job.add("quantity", book.getQuantity());
-        job.add("count", book.getCount());
+        job.add("price", book.getPrice());
+        job.add("cover", book.getCover());
         job.add("author", jab.add(ajb.getAuthorsJsonArray(book.getAuthor())));
         return job.build();
     }
