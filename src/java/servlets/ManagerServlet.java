@@ -14,12 +14,15 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
@@ -49,6 +52,7 @@ import session.BookFacade;
     "/updateAuthor",
     "/createNewBook",
     "/getListBooks",
+    "/getListCovers",
     "/getBook",
     "/updateBook",
   
@@ -59,6 +63,8 @@ public class ManagerServlet extends HttpServlet {
     @EJB private AuthorFacade authorFacade;
     @EJB private BookFacade bookFacade;
     
+    private final String uploadDir = "D:\\UploadDir\\JPTV20BookShop";
+//    private final String uploadDir = "/opt/UploadDir/JPTV20BookShop";
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -169,7 +175,12 @@ public class ManagerServlet extends HttpServlet {
                 }
                 book.setAuthor(authors);
                 book.setPrice(price);
-                book.setCover(getPathToCover(request.getPart("cover")));
+                String coverFileName = request.getParameter("coverFileName");
+                if(coverFileName == null || "".equals(coverFileName)){
+                    book.setCover(getPathToCover(request.getPart("cover")));
+                }else{
+                    book.setCover(getPathToCover(coverFileName));
+                }
                 bookFacade.create(book);
                 job.add("info", "Книга добавлена!");
                     job.add("status", true);
@@ -187,6 +198,20 @@ public class ManagerServlet extends HttpServlet {
                     out.println(job.build().toString());
                 }
                 break;
+            case "/getListCovers":
+                String[] coversFileName = getCoversFileName();
+                JsonArrayBuilder jab = Json.createArrayBuilder();
+                for (int i = 0; i < coversFileName.length; i++) {
+                    jab.add(coversFileName[i]);
+                }
+                
+                job.add("status",true);
+                job.add("info","Создан массив авторов");
+                job.add("covers",jab.build());
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
+                break;
             case "/getBook":
                 
                 break;
@@ -196,8 +221,7 @@ public class ManagerServlet extends HttpServlet {
         }
     }
     private String getPathToCover(Part part) throws IOException {
-        String uploadDir = "D:\\UploadDir\\JPTV20BookShop";
-        //String uploadDir = "/opt/UploadDir/JPTV20BookShop";
+        
         String pathToCover = uploadDir + File.separator + getFileName(part);
         File file = new File(pathToCover);
         file.mkdirs();
@@ -205,6 +229,29 @@ public class ManagerServlet extends HttpServlet {
             Files.copy(fileContent, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
         return pathToCover;
+    }
+    private String getPathToCover(String coverFileName){
+        File uploadDirFolder = new File(uploadDir);
+        File[] listOfFiles = uploadDirFolder.listFiles();
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if(listOfFiles[i].isFile()){
+                if(coverFileName.equals(listOfFiles[i].getName())){
+                    return listOfFiles[i].getPath();
+                }
+            }
+        }
+        return "";
+    }
+    private String[] getCoversFileName(){
+        Set<String> setPathToCover = new HashSet<>();
+        File uploadDirFolder = new File(uploadDir);
+        File[] listOfFiles = uploadDirFolder.listFiles();
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if(listOfFiles[i].isFile()){
+                setPathToCover.add(listOfFiles[i].getName());
+            }
+        }
+        return setPathToCover.toArray(new String[setPathToCover.size()]);
     }
     private String getFileName(Part part){
         final String partHeader = part.getHeader("content-disposition");
