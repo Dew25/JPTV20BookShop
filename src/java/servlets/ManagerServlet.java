@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ import session.BookFacade;
     "/createNewBook",
     "/getListBooks",
     "/getListCovers",
-    "/getBook",
+    "/getEditBook",
     "/updateBook",
   
 })
@@ -212,8 +213,18 @@ public class ManagerServlet extends HttpServlet {
                     out.println(job.build().toString());
                 }
                 break;
-            case "/getBook":
-                
+            case "/getEditBook":
+                jsonReader = Json.createReader(request.getReader());
+                jsonObject = jsonReader.readObject();
+                String editBookId = jsonObject.getString("editBookId","");
+                Book editBook = bookFacade.find(Long.parseLong(editBookId));
+                bjb = new BookJsonBuilder();
+                job.add("status",true);
+                job.add("info","Редактируем книгу: "+editBook.getBookName());
+                job.add("editBook",bjb.getBookJsonObject(editBook));
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
                 break;
             case "/updateBook":
                 
