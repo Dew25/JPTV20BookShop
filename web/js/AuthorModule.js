@@ -14,6 +14,7 @@ class AuthorModule{
             headers: {
                 'Content-Type': 'application/json;charset:utf8'
             },
+            credentials: 'include',
             body: JSON.stringify(newAuthor) 
         });
         promise.then(response => response.json())
@@ -33,18 +34,19 @@ class AuthorModule{
                 });
                         
     }
-    insertListAuthors(combobox){
+    insertListAuthors(combobox,book){
         const promiseListAuthors = fetch('getListAuthors',{
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json;charset:utf8'
-            }
+            },
+            credentials: 'include'
         });
         promiseListAuthors
-                .then(response => response.json())
-                .then(response =>{
-                    if(response.status){
-                        const select = document.getElementById('select_authors');
+                .then(responseListAuthors => responseListAuthors.json())
+                .then(responseListAuthors =>{
+                    if(responseListAuthors.status){
+                        let select = document.getElementById('select_authors');
                         select.options.length=0;
                         let option = null;
                         if(combobox){
@@ -53,11 +55,18 @@ class AuthorModule{
                                 option.value = '';
                                 select.add(option);
                         }
-                        for(let i=0; i<response.authors.length; i++){
+                        for(let i=0; i<responseListAuthors.authors.length; i++){
                             option = document.createElement('option');
-                            option.text = response.authors[i].firstname+' '+response.authors[i].lastname;
-                            option.value = response.authors[i].id;
+                            option.text = responseListAuthors.authors[i].firstname+' '+responseListAuthors.authors[i].lastname;
+                            option.value = responseListAuthors.authors[i].id;
                             select.add(option);
+                            if(!combobox && book!==null && book!=='undefined'){
+                                for(let j=0;j<book.author.length;j++){
+                                    if(responseListAuthors.authors[i].id === book.author){
+                                        select.options[i].selected = true;
+                                    }
+                                }
+                            }
                         }
                     }else{
                        document.getElementById('info').innerHTML = response.info;  
@@ -77,6 +86,7 @@ class AuthorModule{
             headers: {
                 'Content-Type': 'application/json;charset:utf8'
             },
+            credentials: 'include',
             body: JSON.stringify(object)
         });
         promiseAuthor
@@ -112,6 +122,7 @@ class AuthorModule{
             headers: {
                 'Content-Type': 'application/json;charset:utf8'
             },
+            credentials: 'include',
             body: JSON.stringify(updateUser)
         });
         promiseAuthor

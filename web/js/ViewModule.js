@@ -119,7 +119,7 @@ class ViewModule{
             <div class="card border-0 mb-3 mx-auto" style="max-width: 50rem;">
                 <div class="card-body row">
                         <div class="form-group mb-4">
-                            <label for="list_books" class=" col-form-label mt-2">Список книг (выберите книгу чтобы отредактировать ее данные)</label>
+                            <label for="list_books" class="col-form-label mt-2">Список книг (выберите книгу чтобы отредактировать ее данные)</label>
                             <select class="col-sm-10 form-select form-control-plaintext" id="list_books">
                               
                             </select>

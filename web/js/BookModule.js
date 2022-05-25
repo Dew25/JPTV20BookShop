@@ -14,7 +14,7 @@ class BookModule{
                    if(response.status){
                        document.getElementById('info').innerHTML = response.info;
                        viewModule.showNewBookForm();
-                       bookModule.insertBookOptions();
+                       bookModule.insertBookOptions(true);
                    }else{
                        document.getElementById('info').innerHTML = response.info;
                    }
@@ -107,15 +107,9 @@ class BookModule{
                         document.getElementById('book_name').value=response.editBook.bookName;
                         document.getElementById('published_year').value=response.editBook.publishedYear;
                         document.getElementById('price').value=response.editBook.price;
-                        authorModule.insertListAuthors(false);
-                        const selectAuthors = document.getElementById('select_authors');
-                        for(let i=0; i<selectAuthors.options.length; i++){
-                            for(j=0;j<response.editBook.author.length;j++){
-                                selectAuthors.options[j].selected;
-                            }
-                        }
+                        authorModule.insertListAuthors(false, response.editBook);
                         insertListCovers();
-                        const selectListCovers = document.getElementById('list_covers');
+                        let selectListCovers = document.getElementById('list_covers');
                         for(let i=0; i < selectListCovers.options.length;i++){
                             if(selectListCovers.options[i].value === response.editBook.cover){
                                 selectListCovers.options[i].selected;
