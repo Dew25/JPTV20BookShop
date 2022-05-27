@@ -30,11 +30,12 @@ class AuthorModule{
                    }
                 })
                 .catch(error=>{
-                    document.getElementById('info').innerHTML = 'Ошибка сервера: '+error;
+                    document.getElementById('info').innerHTML = 'Ошибка сервера createNewAuthor: '+error;
                 });
                         
     }
     insertListAuthors(combobox,book){
+      
         const promiseListAuthors = fetch('getListAuthors',{
             method: 'GET',
             headers: {
@@ -60,21 +61,36 @@ class AuthorModule{
                             option.text = responseListAuthors.authors[i].firstname+' '+responseListAuthors.authors[i].lastname;
                             option.value = responseListAuthors.authors[i].id;
                             select.add(option);
-                            if(!combobox && book!==null && book!=='undefined'){
-                                for(let j=0;j<book.author.length;j++){
-                                    if(responseListAuthors.authors[i].id === book.author){
-                                        select.options[i].selected = true;
-                                    }
-                                }
-                            }
+                        }
+                        if(book !== undefined){
+                            authorModule.selectBookList(book);
                         }
                     }else{
                        document.getElementById('info').innerHTML = response.info;  
                     }
                 })
                 .catch(error=>{
-                    document.getElementById('info').innerHTML = 'Ошибка сервера: '+error;
+                    document.getElementById('info').innerHTML = 'Ошибка сервера insertListAuthors: '+error;
                 });
+    }
+    selectBookList(book){
+        let select = document.getElementById('select_authors');
+        let options = select.options;
+        let bookAuthors = [];
+        for (let i = 0; i < book.author.length; i++) {
+            bookAuthors[i]=book.author[i];
+        }
+        let authorsId = [];
+        for (let i = 0;i < this.select.options.length; i++) {
+            this.authorsId[i] = this.select.aptions[i].value;
+        }
+        for (let i = 0; i < this.select.options.length; i++) {
+            for (let j = 0; j < this.bookAuthors.length; j++) {
+                console.log('authorsId[i]='+this.select.options[i]);
+                console.log('bookAuthors[j]='+this.bookAuthors[j]);
+            }
+        }
+        
     }
     editAuthor(){
         const authorId = document.getElementById('select_authors').value;
@@ -103,7 +119,7 @@ class AuthorModule{
                    }
                 })
                 .catch(error=>{
-                    document.getElementById('info').innerHTML = 'Ошибка сервера: '+error;
+                    document.getElementById('info').innerHTML = 'Ошибка сервера editAuthor: '+error;
                 });
     }
     updateAuthor(){
@@ -136,7 +152,7 @@ class AuthorModule{
                    }
                 })
                 .catch(error=>{
-                    document.getElementById('info').innerHTML = 'Ошибка сервера: '+error;
+                    document.getElementById('info').innerHTML = 'Ошибка сервера updateAuthor: '+error;
                 });
     }
 }

@@ -55,7 +55,7 @@ class BookModule{
                     }
                 })
                 .catch(error=>{
-                    document.getElementById('info').innerHTML = 'Ошибка сервера: '+error;
+                    document.getElementById('info').innerHTML = 'Ошибка сервера insertBookOptions: '+error;
                 });
     }
     insertListCovers(){
@@ -72,7 +72,7 @@ class BookModule{
                         const select = document.getElementById('list_covers');
                         select.options.length=0;
                         let option = document.createElement('option');
-                        option.text = "Выберите книгу";
+                        option.text = "Выберите обложку";
                         option.value = '';
                         select.add(option);
                         
@@ -87,7 +87,7 @@ class BookModule{
                     }
                 })
                 .catch(error=>{
-                    document.getElementById('info').innerHTML = 'Ошибка сервера: '+error;
+                    document.getElementById('info').innerHTML = 'Ошибка сервера insertListCovers: '+error;
                 });
     }
     editBook(){
@@ -108,7 +108,7 @@ class BookModule{
                         document.getElementById('published_year').value=response.editBook.publishedYear;
                         document.getElementById('price').value=response.editBook.price;
                         authorModule.insertListAuthors(false, response.editBook);
-                        insertListCovers();
+                        bookModule.insertListCovers();
                         let selectListCovers = document.getElementById('list_covers');
                         for(let i=0; i < selectListCovers.options.length;i++){
                             if(selectListCovers.options[i].value === response.editBook.cover){
@@ -121,7 +121,7 @@ class BookModule{
                     }
                 })
                 .catch(error=>{
-                    document.getElementById('info').innerHTML = 'Ошибка сервера: '+error;
+                    document.getElementById('info').innerHTML = 'Ошибка сервера editBook: '+error;
                 });
     }
 }
