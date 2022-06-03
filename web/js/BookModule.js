@@ -82,6 +82,7 @@ class BookModule{
                             option.value = response.covers[i];
                             select.add(option);
                         }
+                        
                     }else{
                        document.getElementById('info').innerHTML = response.info;  
                     }
@@ -89,6 +90,16 @@ class BookModule{
                 .catch(error=>{
                     document.getElementById('info').innerHTML = 'Ошибка сервера insertListCovers: '+error;
                 });
+    }
+    selectCover(book){
+        let coverFileName = book.cover.slice(book.cover.lastIndexOf('\\')+1);
+        let select = document.getElementById('list_covers');
+        for(let i=0; i<select.options.length;i++){
+            if(select.options[i].value === coverFileName){
+                select.value = coverFileName;
+                break;
+            }
+        }
     }
     editBook(){
         const editBookId = document.getElementById('list_books').value;
@@ -104,18 +115,19 @@ class BookModule{
                 .then(response => response.json())
                 .then(response =>{
                     if(response.status){
+                        document.getElementById('id').value=response.editBook.id;
                         document.getElementById('book_name').value=response.editBook.bookName;
                         document.getElementById('published_year').value=response.editBook.publishedYear;
                         document.getElementById('price').value=response.editBook.price;
                         authorModule.insertListAuthors(false, response.editBook);
-                        bookModule.insertListCovers();
                         let selectListCovers = document.getElementById('list_covers');
                         for(let i=0; i < selectListCovers.options.length;i++){
                             if(selectListCovers.options[i].value === response.editBook.cover){
                                 selectListCovers.options[i].selected;
                             }
                         }
-                        
+                        bookModule.insertListCovers();
+                        bookModule.selectCover(response.editBook);
                     }else{
                        document.getElementById('info').innerHTML = response.info;  
                     }
@@ -123,6 +135,27 @@ class BookModule{
                 .catch(error=>{
                     document.getElementById('info').innerHTML = 'Ошибка сервера editBook: '+error;
                 });
+    }
+    updateBook(){
+        const formData = new FormData(document.getElementById('newBookForm'));
+        const promise = fetch('updateBook',{
+            method: 'POST',
+            body: formData
+        });
+        promise.then(response => response.json())
+                .then(response =>{
+                   if(response.status){
+                       document.getElementById('info').innerHTML = response.info;
+                       viewModule.showNewBookForm();
+                       bookModule.insertBookOptions(true);
+                   }else{
+                       document.getElementById('info').innerHTML = response.info;
+                   }
+                })
+                .catch(error=>{
+                    document.getElementById('info').innerHTML = 'Ошибка сервера (createNewBook): '+error;
+                });
+       
     }
 }
 const bookModule = new BookModule();

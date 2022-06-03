@@ -27,14 +27,13 @@ public class BookJsonBuilder {
     }
     public JsonObject getBookJsonObject(Book book){
         JsonObjectBuilder job = Json.createObjectBuilder();
-        JsonArrayBuilder jab = Json.createArrayBuilder();
         AuthorJsonBuilder ajb = new AuthorJsonBuilder();
         job.add("id", book.getId());
         job.add("bookName", book.getBookName());
         job.add("publishedYear", book.getPublishedYear());
         job.add("price", book.getPrice());
         job.add("cover", book.getCover());
-        job.add("author", jab.add(ajb.getAuthorsJsonArray(book.getAuthor())));
+        job.add("author", ajb.getAuthorsJsonArray(book.getAuthor()));
         return job.build();
     }
 }

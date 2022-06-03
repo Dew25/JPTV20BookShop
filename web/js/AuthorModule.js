@@ -74,29 +74,20 @@ class AuthorModule{
                 });
     }
     selectBookList(book){
-        let select = document.getElementById('select_authors');
-        let options = select.options;
-        let bookAuthors = [];
-        for (let i = 0; i < book.author.length; i++) {
-            bookAuthors[i]=book.author[i];
-        }
-        let authorsId = [];
-        for (let i = 0;i < this.select.options.length; i++) {
-            this.authorsId[i] = this.select.aptions[i].value;
-        }
-        for (let i = 0; i < this.select.options.length; i++) {
-            for (let j = 0; j < this.bookAuthors.length; j++) {
-                console.log('authorsId[i]='+this.select.options[i]);
-                console.log('bookAuthors[j]='+this.bookAuthors[j]);
+        let options = document.getElementById('select_authors').options;
+        for(let i=0; i<options.length;i++){
+            for(let j=0;j<book.author.length;j++){
+                if(book.author[j].id == options[i].value){
+                    options[i].selected = true;
+                }
             }
         }
-        
     }
     editAuthor(){
         const authorId = document.getElementById('select_authors').value;
         const object = {
             "authorId":authorId
-        }
+        };
         const promiseAuthor = fetch('getAuthor',{
             method: 'POST',
             headers: {

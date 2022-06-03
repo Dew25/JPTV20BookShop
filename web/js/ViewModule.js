@@ -87,6 +87,7 @@ class ViewModule{
                 <div class="card-body">
                   <div class="form-group">
                     <label for="bookName" class="form-label mt-4">Название книги</label>
+                    <input type="hidden" name="id" id="id">
                     <input type="text" class="form-control" name="bookName" id="book_name" placeholder="Название книги">
                   </div>
                   <div class="form-group">
@@ -126,16 +127,29 @@ class ViewModule{
                         </div>
                 </div>
             </div></form>`;
-        bookModule.insertListCovers();
+        if(document.getElementById('btn_add_book').classList.contains('d-none')){
+            document.getElementById('btn_add_book').classList.remove('d-none');
+        }
+        if(document.getElementById('btn_update_book').classList.contains('d-none')){
+            document.getElementById('btn_update_book').classList.add('d-none');
+        }
+        document.getElementById('book_form_title').innerHTML = 'Новая книга';
+
         document.getElementById('newBookForm').addEventListener('submit',e => {
             e.preventDefault();
-            bookModule.createNewBook();
+            if(document.getElementById('btn_update_book').classList.contains('d-none')){
+                bookModule.createNewBook();
+            }else{
+                bookModule.updateBook();
+            }
         });
         authorModule.insertListAuthors(false);
         bookModule.insertBookOptions(true);
+        bookModule.insertListCovers();
         document.getElementById('list_books').addEventListener('change', e=>{
             e.preventDefault();
             bookModule.editBook();
+            
             document.getElementById('btn_update_book').classList.remove('d-none');
             document.getElementById('btn_add_book').classList.add('d-none');
             document.getElementById('book_form_title').innerHTML = 'Изменение данных книги';
