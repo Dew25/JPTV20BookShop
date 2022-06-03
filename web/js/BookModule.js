@@ -3,17 +3,18 @@ import {viewModule} from './ViewModule.js';
 import {authorModule} from './AuthorModule.js';
 
 class BookModule{
-    createNewBook(){
-        const formData = new FormData(document.getElementById('newBookForm'));
-        const promise = fetch('createNewBook',{
+    createBook(){
+        const formData = new FormData(document.getElementById('bookForm'));
+        const promise = fetch('createBook',{
             method: 'POST',
+            credentials: 'include',
             body: formData
         });
         promise.then(response => response.json())
                 .then(response =>{
                    if(response.status){
                        document.getElementById('info').innerHTML = response.info;
-                       viewModule.showNewBookForm();
+                       viewModule.showBookForm();
                        bookModule.insertBookOptions(true);
                    }else{
                        document.getElementById('info').innerHTML = response.info;
@@ -25,13 +26,14 @@ class BookModule{
        
     }
     insertBookOptions(combobox){
-        const promiseListAuthors = fetch('getListBooks',{
+        const promiseInsertBookOptions = fetch('getListBooks',{
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json;charset:utf8'
-            }
+            },
+            credentials: 'include'
         });
-        promiseListAuthors
+        promiseInsertBookOptions
                 .then(response => response.json())
                 .then(response =>{
                     if(response.status){
@@ -63,7 +65,8 @@ class BookModule{
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json;charset:utf8'
-            }
+            },
+            credentials: 'include',
         });
         promiseListCovers
                 .then(response => response.json())
@@ -103,13 +106,12 @@ class BookModule{
     }
     editBook(){
         const editBookId = document.getElementById('list_books').value;
-        const promiseEditBook = fetch('getEditBook',{
-            method: 'POST',
+        const promiseEditBook = fetch('getEditBook?id='+editBookId,{
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json;charset:utf8'
             },
-            credentials: 'include',
-            body: JSON.stringify({"editBookId": editBookId})
+            credentials: 'include'
         });
         promiseEditBook
                 .then(response => response.json())
@@ -126,7 +128,7 @@ class BookModule{
                                 selectListCovers.options[i].selected;
                             }
                         }
-                        bookModule.insertListCovers();
+//                        bookModule.insertListCovers();
                         bookModule.selectCover(response.editBook);
                     }else{
                        document.getElementById('info').innerHTML = response.info;  
@@ -137,17 +139,17 @@ class BookModule{
                 });
     }
     updateBook(){
-        const formData = new FormData(document.getElementById('newBookForm'));
+        const formData = new FormData(document.getElementById('bookForm'));
         const promise = fetch('updateBook',{
             method: 'POST',
+            credentials: 'include',
             body: formData
         });
         promise.then(response => response.json())
                 .then(response =>{
                    if(response.status){
                        document.getElementById('info').innerHTML = response.info;
-                       viewModule.showNewBookForm();
-                       bookModule.insertBookOptions(true);
+                       viewModule.showBookForm();
                    }else{
                        document.getElementById('info').innerHTML = response.info;
                    }

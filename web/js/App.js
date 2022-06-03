@@ -16,13 +16,13 @@ const menuAddAuthor = document.getElementById("menu_add_author");
 menuAddAuthor.addEventListener('click', e => {
     e.preventDefault();
     activeBtnMenu(menuAddAuthor);
-    viewModule.showNewAuthorForm();
+    viewModule.showAuthorForm();
 });
 const menuAddBook = document.getElementById("menu_add_book");
 menuAddBook.addEventListener('click', e=>{
     e.preventDefault();
     activeBtnMenu(menuAddBook);
-    viewModule.showNewBookForm();
+    viewModule.showBookForm();
 });
 const menuPurchaces = document.getElementById("menu_purchaces");
 menuPurchaces.addEventListener('click', e => {
@@ -104,6 +104,7 @@ function activeBtnMenu(activeMenuBtn){
         activeMenuBtn.classList.add("active");
     }
     deactiveMenu(activeMenuBtn);
+    document.getElementById('info').innerHTML = '';
 }
 function deactiveMenu(activeMenuBtn){
     const listNavLinks = document.getElementsByClassName('nav-link');

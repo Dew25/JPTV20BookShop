@@ -1,6 +1,6 @@
 import {viewModule} from './ViewModule.js';
 class AuthorModule{
-    createNewAuthor(){
+    createAuthor(){
         const firstname = document.getElementById('firstname').value;
         const lastname = document.getElementById('lastname').value;
         const birthYear = document.getElementById('birth_year').value;
@@ -9,7 +9,7 @@ class AuthorModule{
             "lastname": lastname,
             "birthYear": birthYear
         }
-        const promise = fetch('createNewAuthor',{
+        const promise = fetch('createAuthor',{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset:utf8'
@@ -21,7 +21,7 @@ class AuthorModule{
                .then(response =>{
                    if(response.status){
                        document.getElementById('info').innerHTML = response.info;
-                       viewModule.showNewAuthorForm();
+                       viewModule.showAuthorForm();
                    }else{
                        document.getElementById('info').innerHTML = response.info;
                        firstname = response.firstname;
@@ -137,7 +137,7 @@ class AuthorModule{
                 .then(response =>{
                    if(response.status){
                        document.getElementById('info').innerHTML = 'Автор изменен';
-                       viewModule.showNewAuthorForm();
+                       viewModule.showAuthorForm();
                    }else{
                        document.getElementById('info').innerHTML = 'Автора изменить не удалось';
                    }

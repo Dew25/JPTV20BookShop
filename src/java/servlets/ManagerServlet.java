@@ -11,24 +11,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
-import javax.json.JsonValue;
-import javax.json.stream.JsonParser;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -47,11 +41,11 @@ import session.BookFacade;
  * @author Melnikov
  */
 @WebServlet(name = "ManagerServlet", urlPatterns = {
-    "/createNewAuthor",
+    "/createAuthor",
     "/getListAuthors",
     "/getAuthor",
     "/updateAuthor",
-    "/createNewBook",
+    "/createBook",
     "/getListBooks",
     "/getListCovers",
     "/getEditBook",
@@ -79,12 +73,12 @@ public class ManagerServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-         request.setCharacterEncoding("UTF-8");
-         HttpSession session = null;
-         JsonObjectBuilder job = Json.createObjectBuilder();
-         String path = request.getServletPath();
+        request.setCharacterEncoding("UTF-8");
+        HttpSession session = null;
+        JsonObjectBuilder job = Json.createObjectBuilder();
+        String path = request.getServletPath();
         switch (path) {
-            case "/createNewAuthor":
+            case "/createAuthor":
                 JsonReader jsonReader = Json.createReader(request.getReader());
                 JsonObject jsonObject = jsonReader.readObject();
                 String firstname = jsonObject.getString("firstname","");
@@ -153,7 +147,7 @@ public class ManagerServlet extends HttpServlet {
                     out.println(job.build().toString());
                 }
                 break;
-            case "/createNewBook":
+            case "/createBook":
                 String bookName = request.getParameter("bookName");
                 String publishedYear = request.getParameter("publishedYear");
                 String[] selectAuthors = request.getParameterValues("selectAuthors");
@@ -177,12 +171,21 @@ public class ManagerServlet extends HttpServlet {
                 book.setAuthor(authors);
                 book.setPrice(price);
                 String coverFileName = request.getParameter("coverFileName");
-                if(coverFileName == null || "".equals(coverFileName)){
+                try {
                     book.setCover(getPathToCover(request.getPart("cover")));
-                }else{
+                } catch (Exception e) {
+                    coverFileName = request.getParameter("coverFileName");
                     book.setCover(getPathToCover(coverFileName));
                 }
-                bookFacade.create(book);
+                try {
+                    bookFacade.create(book);
+                    job.add("info", "Книга создана!");
+                    job.add("status", true);
+                } catch (Exception e) {
+                    job.add("info", "Книгy создать не удалось!");
+                    job.add("status", false);
+                }
+                
                 job.add("info", "Книга добавлена!");
                     job.add("status", true);
                     try (PrintWriter out = response.getWriter()) {
@@ -214,9 +217,10 @@ public class ManagerServlet extends HttpServlet {
                 }
                 break;
             case "/getEditBook":
-                jsonReader = Json.createReader(request.getReader());
-                jsonObject = jsonReader.readObject();
-                String editBookId = jsonObject.getString("editBookId","");
+//                jsonReader = Json.createReader(request.getReader());
+//                jsonObject = jsonReader.readObject();
+//                String editBookId = jsonObject.getString("editBookId","");
+                String editBookId = request.getParameter("id");
                 Book editBook = bookFacade.find(Long.parseLong(editBookId));
                 bjb = new BookJsonBuilder();
                 job.add("status",true);
@@ -227,12 +231,50 @@ public class ManagerServlet extends HttpServlet {
                 }
                 break;
             case "/updateBook":
-                
+                String id = request.getParameter("id");
+                bookName = request.getParameter("bookName");
+                publishedYear = request.getParameter("publishedYear");
+                selectAuthors = request.getParameterValues("selectAuthors");
+                price = request.getParameter("price");
+                if("".equals(bookName) || "".equals(publishedYear)
+                        || selectAuthors.length == 0 || "".equals(price)){
+                    job.add("info", "Заполните все поля!");
+                    job.add("status", false);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(job.build().toString());
+                    }
+                }
+                Book updateBook = bookFacade.find(Long.parseLong(id));
+                updateBook.setBookName(bookName);
+                updateBook.setPublishedYear(Integer.parseInt(publishedYear));
+                authors = new ArrayList<>();
+                for(int i=0; i < selectAuthors.length; i++){
+                    String jsonAuthorId = selectAuthors[i];
+                    authors.add(authorFacade.find(Long.parseLong(jsonAuthorId)));
+                }
+                updateBook.setAuthor(authors);
+                updateBook.setPrice(price);
+                try {
+                    updateBook.setCover(getPathToCover(request.getPart("cover")));
+                } catch (Exception e) {
+                    coverFileName = request.getParameter("coverFileName");
+                    updateBook.setCover(getPathToCover(coverFileName));
+                }
+                try {
+                    bookFacade.edit(updateBook);
+                    job.add("info", "Книга обновлена!");
+                    job.add("status", true);
+                } catch (Exception e) {
+                    job.add("info", "Книгy обновить не удалось!");
+                    job.add("status", false);
+                }
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
                 break;
         }
     }
     private String getPathToCover(Part part) throws IOException {
-        
         String pathToCover = uploadDir + File.separator + getFileName(part);
         File file = new File(pathToCover);
         file.mkdirs();

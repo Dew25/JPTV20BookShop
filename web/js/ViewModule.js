@@ -26,7 +26,7 @@ class ViewModule{
             loginModule.sendCredential();
         });
     };
-    showNewAuthorForm(){
+    showAuthorForm(){
         const content = document.getElementById('content');
         content.innerHTML = 
             `<div class="card border-secondary mb-3 mx-auto" style="max-width: 30rem;">
@@ -61,7 +61,7 @@ class ViewModule{
             </div>`;
         document.getElementById('btn_add_author').addEventListener('click',(e)=>{
             e.preventDefault();
-            authorModule.createNewAuthor();
+            authorModule.createAuthor();
         });
         document.getElementById('btn_update_author').addEventListener('click',(e)=>{
             e.preventDefault();
@@ -79,10 +79,10 @@ class ViewModule{
         });
         authorModule.insertListAuthors(true);
     };
-    showNewBookForm(){
+    showBookForm(){
         const content = document.getElementById('content');
         content.innerHTML = 
-           `<form id="newBookForm"><div class="card border-secondary mb-3 mx-auto" style="max-width: 30rem;">
+           `<form id="bookForm"><div class="card border-secondary mb-3 mx-auto" style="max-width: 30rem;">
                 <h3 class="card-header w-100 text-center " id="book_form_title">Новая книга</h3>
                 <div class="card-body">
                   <div class="form-group">
@@ -127,25 +127,25 @@ class ViewModule{
                         </div>
                 </div>
             </div></form>`;
+        authorModule.insertListAuthors(false);
+        bookModule.insertBookOptions(true);
+        bookModule.insertListCovers();
+        document.getElementById('book_form_title').innerHTML = 'Новая книга';
         if(document.getElementById('btn_add_book').classList.contains('d-none')){
             document.getElementById('btn_add_book').classList.remove('d-none');
         }
         if(document.getElementById('btn_update_book').classList.contains('d-none')){
             document.getElementById('btn_update_book').classList.add('d-none');
         }
-        document.getElementById('book_form_title').innerHTML = 'Новая книга';
 
-        document.getElementById('newBookForm').addEventListener('submit',e => {
+        document.getElementById('bookForm').addEventListener('submit',e => {
             e.preventDefault();
             if(document.getElementById('btn_update_book').classList.contains('d-none')){
-                bookModule.createNewBook();
+                bookModule.createBook();
             }else{
                 bookModule.updateBook();
             }
         });
-        authorModule.insertListAuthors(false);
-        bookModule.insertBookOptions(true);
-        bookModule.insertListCovers();
         document.getElementById('list_books').addEventListener('change', e=>{
             e.preventDefault();
             bookModule.editBook();

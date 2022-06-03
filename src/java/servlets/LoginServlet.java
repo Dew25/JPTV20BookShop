@@ -110,7 +110,7 @@ public class LoginServlet extends HttpServlet {
                 User authUser = userFacade.findByLogin(login);
                 if(authUser == null){
                     job.add("info", "Нет такого пользователя")
-                       .add("auth",false);
+                       .add("status",false);
                     try (PrintWriter out = response.getWriter()) {
                         out.println(job.build().toString());
                     }
@@ -120,7 +120,7 @@ public class LoginServlet extends HttpServlet {
                 password = pp.getProtectedPassword(password, authUser.getSalt());
                 if(!password.equals(authUser.getPassword())){
                     job.add("info", "Неверный пароль")
-                       .add("auth",false);
+                       .add("status",false);
                     try (PrintWriter out = response.getWriter()) {
                         out.println(job.build().toString());
                     }
@@ -131,7 +131,7 @@ public class LoginServlet extends HttpServlet {
                 session = request.getSession(true);
                 session.setAttribute("authUser", authUser);
                 job.add("info", "Вы вошли как "+authUser.getLogin())
-                   .add("auth",true)
+                   .add("status",true)
                    .add("user", new UserJsonBuilder().getUserJsonObject(authUser))
                    .add("role", new RoleJsonBuilder().getRoleJsonObject(role));
                 
@@ -143,9 +143,12 @@ public class LoginServlet extends HttpServlet {
                 session = request.getSession(false);
                 if(session != null){
                     session.invalidate();
-                    request.setAttribute("info", "Вы вышли");
                 }
-                request.getRequestDispatcher("/listAccounts").forward(request, response);
+                job.add("info", "Вы вышли")
+                   .add("status",false);
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
                 break;
            
             case "/registration":

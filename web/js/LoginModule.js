@@ -23,7 +23,7 @@ class LoginModule{
                                                   // и преобразовываем JSON в JavaScript object
                .then(response => {// обрабатываем object полученый из обещания
                     document.getElementById('info').innerHTML = response.info;
-                    if(response.auth){
+                    if(response.status){
                         sessionStorage.setItem('user',JSON.stringify(response.user));
                         sessionStorage.setItem('role',JSON.stringify(response.role));
                         checkMenu();
@@ -31,7 +31,7 @@ class LoginModule{
                     }
                })
                .catch(error =>{
-                    document.getElementById('info').innerHTML = "Ошибка сервера: "+error;
+                    document.getElementById('info').innerHTML = "Ошибка сервера sendCredential: "+error;
                     checkMenu();
                     document.getElementById('content').innerHTML = "";
                });
@@ -50,7 +50,7 @@ class LoginModule{
         promiseLogout.then(response => response.json()) 
            .then(response => {// обрабатываем object полученый из обещания
                 document.getElementById('info').innerHTML = response.info;
-                if(!response.auth){
+                if(!response.status){
                     if(sessionStorage.getItem('user')){
                         sessionStorage.removeItem('user');
                     }
