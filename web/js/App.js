@@ -1,6 +1,7 @@
 "use strict";
 import {viewModule} from './ViewModule.js';
 import {loginModule} from './LoginModule.js';
+import {bookModule} from './BookModule.js';
 
 export {checkMenu};
 var debug = true;
@@ -11,6 +12,7 @@ const menuBookShop = document.getElementById("menu_book_shop");
 menuBookShop.addEventListener('click', e => {
     e.preventDefault();
     deactiveMenu(menuBookShop);
+    bookModule.getListBooks();
 });
 const menuAddAuthor = document.getElementById("menu_add_author");
 menuAddAuthor.addEventListener('click', e => {
@@ -52,6 +54,7 @@ menuLogout.addEventListener('click',e=>{
     loginModule.logout();
 });
 const infoElement = document.getElementById("info");
+bookModule.getListBooks();
 
 //function toggleBtnLogin(){
 //    isDebug("Переключаем меню входа")

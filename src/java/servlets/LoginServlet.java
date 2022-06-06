@@ -45,6 +45,8 @@ public class LoginServlet extends HttpServlet {
     @EJB private RoleFacade roleFacade;
     @EJB private UserRolesFacade userRolesFacade;
     
+    private PasswordProtected pp = new PasswordProtected();
+    
     @Override
     public void init() throws ServletException {
         super.init(); //To change body of generated methods, choose Tools | Templates.
@@ -56,10 +58,9 @@ public class LoginServlet extends HttpServlet {
         readerFacade.create(reader);
         User user = new User();
         user.setLogin("admin");
-        PasswordProtected passwordProtected = new PasswordProtected();
-        String salt = passwordProtected.getSalt();
+        String salt = pp.getSalt();
         user.setSalt(salt);
-        String password = passwordProtected.getProtectedPassword("12345", salt);
+        String password = pp.getProtectedPassword("12345", salt);
         user.setPassword(password);
         user.setReader(reader);
         userFacade.create(user);
@@ -116,7 +117,6 @@ public class LoginServlet extends HttpServlet {
                     }
                     break;
                 }
-                PasswordProtected pp = new PasswordProtected();
                 password = pp.getProtectedPassword(password, authUser.getSalt());
                 if(!password.equals(authUser.getPassword())){
                     job.add("info", "Неверный пароль")
@@ -152,7 +152,40 @@ public class LoginServlet extends HttpServlet {
                 break;
            
             case "/registration":
-               
+                jsonReader = Json.createReader(request.getReader());
+                jsonObject = jsonReader.readObject();
+                String firstname = jsonObject.getString("firstname","");
+                String lastname = jsonObject.getString("lastname","");
+                String prhoe = jsonObject.getString("prhoe","");
+                login = jsonObject.getString("login","");
+                password = jsonObject.getString("password","");
+                if("".equals(firstname) || "".equals(lastname) 
+                        || "".equals(prhoe) || "".equals(login) 
+                        ||"".equals(password)){
+                    job.add("info", "Заполните все поля")
+                   .add("status",false);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(job.build().toString());
+                    }
+                }
+                Reader newReader = new Reader ();
+                newReader.setFirstname(firstname);
+                newReader.setLastname(lastname);
+                newReader.setPhone(prhoe);
+                readerFacade.create(newReader);
+                User newUser = new User();
+                newUser.setLogin(login);
+                newUser.setSalt(pp.getSalt());
+                newUser.setPassword(pp.getProtectedPassword(password, newUser.getSalt()));
+                newUser.setReader(newReader);
+                userFacade.create(newUser);
+                
+                role.setRoleName("USER");
+        roleFacade.create(role);
+        UserRoles ur = new UserRoles();
+        ur.setRole(role);
+        ur.setUser(user);
+        userRolesFacade.create(ur);
                 break;
         }
     }

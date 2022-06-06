@@ -3,6 +3,25 @@ import {viewModule} from './ViewModule.js';
 import {authorModule} from './AuthorModule.js';
 
 class BookModule{
+    getListBooks(){
+        const promiseInsertBookOptions = fetch('getListBooks',{
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json;charset:utf8'
+            },
+            credentials: 'include'
+        });
+        promiseInsertBookOptions
+                .then(response => response.json())
+                .then(response =>{
+                    if(response.status){
+                        viewModule.showListBooks(response.books);
+                    }
+                 })
+                .catch(error=>{
+                    document.getElementById('info').innerHTML = 'Ошибка сервера getListBooks: '+error;
+                });
+    }
     createBook(){
         const formData = new FormData(document.getElementById('bookForm'));
         const promise = fetch('createBook',{
