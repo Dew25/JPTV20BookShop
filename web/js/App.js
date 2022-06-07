@@ -53,55 +53,9 @@ menuLogout.addEventListener('click',e=>{
     activeBtnMenu(null);
     loginModule.logout();
 });
-const infoElement = document.getElementById("info");
+
 bookModule.getListBooks();
 
-//function toggleBtnLogin(){
-//    isDebug("Переключаем меню входа")
-//    if(menuLogin.classList.contains("d-none")){
-//        showBtnLogin();
-//        toggleShowMenu();
-//        infoElement.innerHTML = "Вы вышли";
-//    }else{
-//        viewModule.showLoginForm();
-////        hiddenBtnLogin();
-////        toggleShowMenu();
-////        infoElement.innerHTML = "Вы вошли";
-//    }
-//}
-//function showBtnLogin(){
-//    isDebug("Показываем кнопку Вход");
-//    menuLogin.classList.remove("d-none");
-//    menuLogout.classList.add("d-none");
-//}
-//function hiddenBtnLogin(){
-//    isDebug("Прячем кнопку Вход")
-//    menuLogin.classList.add("d-none");
-//    menuLogout.classList.remove("d-none");
-//    
-//}
-//
-//function toggleShowMenu(){
-//    if(menuAddAuthor.classList.contains("d-none")){
-//        showBtnsMenu();
-//    }else{
-//        hiddenBtnsMenu();
-//    }
-//}
-//function showBtnsMenu(){
-//    menuAddAuthor.classList.remove("d-none");
-//    menuAddBook.classList.remove("d-none");
-//    menuPurchaces.classList.remove("d-none");
-//    menuProfile.classList.remove("d-none");
-//    menuAdminPanel.classList.remove("d-none");
-//}
-//function hiddenBtnsMenu(){
-//    menuAddAuthor.classList.add("d-none");
-//    menuAddBook.classList.add("d-none");
-//    menuPurchaces.classList.add("d-none");
-//    menuProfile.classList.add("d-none");
-//    menuAdminPanel.classList.add("d-none");
-//}
 function activeBtnMenu(activeMenuBtn){
     if(activeMenuBtn !== null && !activeMenuBtn.classList.contains("active")){
         activeMenuBtn.classList.add("active");
@@ -216,6 +170,7 @@ function checkMenu() {
         }
         return;
     }
-}checkMenu();
+}
+checkMenu();
 
 

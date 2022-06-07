@@ -163,12 +163,12 @@ public class LoginServlet extends HttpServlet {
                         || "".equals(prhoe) || "".equals(login) 
                         ||"".equals(password)){
                     job.add("info", "Заполните все поля")
-                   .add("status",false);
+                       .add("status",false);
                     try (PrintWriter out = response.getWriter()) {
                         out.println(job.build().toString());
                     }
                 }
-                Reader newReader = new Reader ();
+                Reader newReader = new Reader();
                 newReader.setFirstname(firstname);
                 newReader.setLastname(lastname);
                 newReader.setPhone(prhoe);
@@ -179,13 +179,17 @@ public class LoginServlet extends HttpServlet {
                 newUser.setPassword(pp.getProtectedPassword(password, newUser.getSalt()));
                 newUser.setReader(newReader);
                 userFacade.create(newUser);
-                
-                role.setRoleName("USER");
-        roleFacade.create(role);
-        UserRoles ur = new UserRoles();
-        ur.setRole(role);
-        ur.setUser(user);
-        userRolesFacade.create(ur);
+                role = roleFacade.getRoleByName("USER");
+                roleFacade.create(role);
+                UserRoles ur = new UserRoles();
+                ur.setRole(role);
+                ur.setUser(newUser);
+                userRolesFacade.create(ur);
+                job.add("info", "Пользователь зарегесрирован")
+                   .add("status",true);
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
                 break;
         }
     }

@@ -1,6 +1,7 @@
 import {loginModule} from './LoginModule.js';
 import {authorModule} from './AuthorModule.js';
 import {bookModule} from './BookModule.js';
+import {userModule} from './UserModule.js';
 
 class ViewModule{
     showLoginForm(){
@@ -229,15 +230,17 @@ class ViewModule{
             }
             cardContainer.insertAdjacentHTML('beforeEnd', 
                 `<div class="card border-primary m-3" style="max-width: 20rem;">
-                    <img src='insertFile/${book.cover}' class="card-img-top" style="max-width: 20rem; max-height: 25rem">
-                    <div class="card-header">${book.bookName}</div>
+                    <img src='insertFile/${book.cover}' class="card-img-top" style="width: 20rem; height: 25rem">
+                    <div class="card-header"><h4 class="card-text">${book.bookName}</h4></div>
                     <div class="card-body">
-                      <h4 class="card-title">${titleAuthors}: 
-                          ${authors}
-                      </h4>
-                      <p class="card-text">Цена: ${book.price} шт.</p>
+                      <p class="card-text">${titleAuthors}: <strong>${authors}</strong></p>
+                      <p class="card-text">Цена: <strong>${book.price}</strong> шт.</p>
+                       <button id="btn_buy" type="button" class="btn btn-primary">Купить</button>
                     </div>
                 </div>`);
+            document.getElementById('btn_buy').addEventListener('click',e=>{
+                userModule.buyBook(book);
+            });
         }
     }
 }

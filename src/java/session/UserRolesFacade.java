@@ -34,6 +34,12 @@ public class UserRolesFacade extends AbstractFacade<UserRoles> {
     public UserRolesFacade() {
         super(UserRoles.class);
     }
+    public boolean isRole(String roleName, User user){
+        List<String> userRoles = em.createQuery("SELECT ur.role.roleName FROM UserRoles ur WHERE ur.user = :user")
+                .setParameter("user", user)
+                .getResultList();
+        return userRoles.contains(roleName);
+    }
     public String getRoleForUser(User user){
         try {
             List<String> listRoleNamesForUser = 

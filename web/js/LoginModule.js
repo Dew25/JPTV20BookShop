@@ -112,7 +112,7 @@ class LoginModule{
                     };
                })
                .catch(error =>{
-                    document.getElementById('info').innerHTML = "Ошибка сервера sendCredential: "+error;
+                    document.getElementById('info').innerHTML = "Ошибка сервера registration: "+error;
                     checkMenu();
                     document.getElementById('content').innerHTML = "";
                });

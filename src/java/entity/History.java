@@ -7,7 +7,6 @@ package entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,9 +24,9 @@ public class History implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @OneToOne()
     private Reader reader;
-    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @OneToOne()
     private Book book;
     @Temporal(TemporalType.TIMESTAMP)
     private Date givenDate;
