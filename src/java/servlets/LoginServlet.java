@@ -179,13 +179,12 @@ public class LoginServlet extends HttpServlet {
                 newUser.setPassword(pp.getProtectedPassword(password, newUser.getSalt()));
                 newUser.setReader(newReader);
                 userFacade.create(newUser);
-                
-                role.setRoleName("USER");
-        roleFacade.create(role);
-        UserRoles ur = new UserRoles();
-        ur.setRole(role);
-        ur.setUser(user);
-        userRolesFacade.create(ur);
+                role = roleFacade.getRoleByName("USER");
+                roleFacade.create(role);
+                UserRoles ur = new UserRoles();
+                ur.setRole(role);
+                ur.setUser(newUser);
+                userRolesFacade.create(ur);
                 break;
         }
     }
