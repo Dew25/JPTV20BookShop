@@ -5,12 +5,14 @@
  */
 package servlets;
 
+import entity.Book;
 import entity.Reader;
 import entity.Role;
 import entity.User;
 import entity.UserRoles;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -22,8 +24,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import jsontools.BookJsonBuilder;
 import jsontools.RoleJsonBuilder;
 import jsontools.UserJsonBuilder;
+import session.BookFacade;
 import session.ReaderFacade;
 import session.RoleFacade;
 import session.UserFacade;
@@ -38,14 +42,16 @@ import tools.PasswordProtected;
     "/login",
     "/logout",
     "/registration",
+    "/getListBooks",
 })
 public class LoginServlet extends HttpServlet {
     @EJB private UserFacade userFacade;
+    @EJB private BookFacade bookFacade;
     @EJB private ReaderFacade readerFacade;
     @EJB private RoleFacade roleFacade;
     @EJB private UserRolesFacade userRolesFacade;
     
-    private PasswordProtected pp = new PasswordProtected();
+    private final PasswordProtected pp = new PasswordProtected();
     
     @Override
     public void init() throws ServletException {
@@ -99,7 +105,7 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
          request.setCharacterEncoding("UTF-8");
-         HttpSession session = null;
+         HttpSession session;
          JsonObjectBuilder job = Json.createObjectBuilder();
          String path = request.getServletPath();
         switch (path) {
@@ -156,22 +162,22 @@ public class LoginServlet extends HttpServlet {
                 jsonObject = jsonReader.readObject();
                 String firstname = jsonObject.getString("firstname","");
                 String lastname = jsonObject.getString("lastname","");
-                String prhoe = jsonObject.getString("prhoe","");
+                String phone = jsonObject.getString("phone","");
                 login = jsonObject.getString("login","");
                 password = jsonObject.getString("password","");
                 if("".equals(firstname) || "".equals(lastname) 
-                        || "".equals(prhoe) || "".equals(login) 
+                        || "".equals(phone) || "".equals(login) 
                         ||"".equals(password)){
                     job.add("info", "Заполните все поля")
-                   .add("status",false);
+                       .add("status",false);
                     try (PrintWriter out = response.getWriter()) {
                         out.println(job.build().toString());
                     }
                 }
-                Reader newReader = new Reader ();
+                Reader newReader = new Reader();
                 newReader.setFirstname(firstname);
                 newReader.setLastname(lastname);
-                newReader.setPhone(prhoe);
+                newReader.setPhone(phone);
                 readerFacade.create(newReader);
                 User newUser = new User();
                 newUser.setLogin(login);
@@ -180,11 +186,26 @@ public class LoginServlet extends HttpServlet {
                 newUser.setReader(newReader);
                 userFacade.create(newUser);
                 role = roleFacade.getRoleByName("USER");
-                roleFacade.create(role);
                 UserRoles ur = new UserRoles();
                 ur.setRole(role);
                 ur.setUser(newUser);
                 userRolesFacade.create(ur);
+                job.add("info", "Пользователь зарегесрирован")
+                   .add("status",true);
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
+
+                break;
+            case "/getListBooks":
+                List<Book> listBooks = bookFacade.findAll();
+                BookJsonBuilder bjb = new BookJsonBuilder();
+                job.add("status",true);
+                job.add("info","Создан массив книг");
+                job.add("books",bjb.getBooksJsonArray(listBooks));
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
                 break;
         }
     }

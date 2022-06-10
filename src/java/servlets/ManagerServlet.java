@@ -7,6 +7,7 @@ package servlets;
 
 import entity.Author;
 import entity.Book;
+import entity.User;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +36,7 @@ import jsontools.AuthorJsonBuilder;
 import jsontools.BookJsonBuilder;
 import session.AuthorFacade;
 import session.BookFacade;
+import session.UserRolesFacade;
 
 /**
  *
@@ -46,7 +48,7 @@ import session.BookFacade;
     "/getAuthor",
     "/updateAuthor",
     "/createBook",
-    "/getListBooks",
+    
     "/getListCovers",
     "/getEditBook",
     "/updateBook",
@@ -57,6 +59,7 @@ public class ManagerServlet extends HttpServlet {
     
     @EJB private AuthorFacade authorFacade;
     @EJB private BookFacade bookFacade;
+    @EJB private UserRolesFacade userRolesFacade;
     
     private final String uploadDir = "D:\\UploadDir\\JPTV20BookShop";
 //    private final String uploadDir = "/opt/UploadDir/JPTV20BookShop";
@@ -74,8 +77,33 @@ public class ManagerServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
-        HttpSession session = null;
         JsonObjectBuilder job = Json.createObjectBuilder();
+        HttpSession session = request.getSession(false);
+        if(session == null){
+            job.add("info", "Пожалуйста, авторизуйтесь!")
+                .add("statur",false);
+            try (PrintWriter out = response.getWriter()) {
+                out.println(job.build().toString());
+            }
+            return;
+        }
+        User authUser = (User) session.getAttribute("authUser");
+        if(authUser == null){
+             job.add("info", "Пожалуйста, авторизуйтесь!")
+                .add("statur",false);
+            try (PrintWriter out = response.getWriter()) {
+                out.println(job.build().toString());
+            }
+            return;
+        }
+        if(!userRolesFacade.isRole("MANAGER", authUser)){
+             job.add("info", "У вас нет прав для этих действий!")
+                .add("statur",false);
+            try (PrintWriter out = response.getWriter()) {
+                out.println(job.build().toString());
+            }
+            return;
+        }
         String path = request.getServletPath();
         switch (path) {
             case "/createAuthor":
@@ -94,7 +122,6 @@ public class ManagerServlet extends HttpServlet {
                     }
                     break;
                 }
-                
                 Author newAuthor = new Author();
                 newAuthor.setFirstname(firstname);
                 newAuthor.setLastname(lastname);
@@ -170,10 +197,10 @@ public class ManagerServlet extends HttpServlet {
                 }
                 book.setAuthor(authors);
                 book.setPrice(price);
-                String coverFileName = request.getParameter("coverFileName");
+                String coverFileName;
                 try {
                     book.setCover(getPathToCover(request.getPart("cover")));
-                } catch (Exception e) {
+                } catch (IOException | ServletException e) {
                     coverFileName = request.getParameter("coverFileName");
                     book.setCover(getPathToCover(coverFileName));
                 }
@@ -192,25 +219,26 @@ public class ManagerServlet extends HttpServlet {
                         out.println(job.build().toString());
                     }
                 break;
-            case "/getListBooks":
-                List<Book> listBooks = bookFacade.findAll();
-                BookJsonBuilder bjb = new BookJsonBuilder();
-                job.add("status",true);
-                job.add("info","Создан массив книг");
-                job.add("books",bjb.getBooksJsonArray(listBooks));
-                try (PrintWriter out = response.getWriter()) {
-                    out.println(job.build().toString());
-                }
-                break;
+            
             case "/getListCovers":
-                String[] coversFileName = getCoversFileName();
                 JsonArrayBuilder jab = Json.createArrayBuilder();
+                String[] coversFileName = {};
+                coversFileName = getCoversFileName();
+                if(coversFileName == null){
+                    job.add("status",false);
+                    job.add("info","Список обложек пуст");
+                    job.add("covers",jab.build());
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(job.build().toString());
+                    }
+                    break;
+                }
                 for (int i = 0; i < coversFileName.length; i++) {
                     jab.add(coversFileName[i]);
                 }
                 
                 job.add("status",true);
-                job.add("info","Создан массив авторов");
+                job.add("info","Список обложек");
                 job.add("covers",jab.build());
                 try (PrintWriter out = response.getWriter()) {
                     out.println(job.build().toString());
@@ -222,7 +250,7 @@ public class ManagerServlet extends HttpServlet {
 //                String editBookId = jsonObject.getString("editBookId","");
                 String editBookId = request.getParameter("id");
                 Book editBook = bookFacade.find(Long.parseLong(editBookId));
-                bjb = new BookJsonBuilder();
+                BookJsonBuilder bjb = new BookJsonBuilder();
                 job.add("status",true);
                 job.add("info","Редактируем книгу: "+editBook.getBookName());
                 job.add("editBook",bjb.getBookJsonObject(editBook));
@@ -299,6 +327,7 @@ public class ManagerServlet extends HttpServlet {
         Set<String> setPathToCover = new HashSet<>();
         File uploadDirFolder = new File(uploadDir);
         File[] listOfFiles = uploadDirFolder.listFiles();
+        if (listOfFiles == null) return null;
         for (int i = 0; i < listOfFiles.length; i++) {
             if(listOfFiles[i].isFile()){
                 setPathToCover.add(listOfFiles[i].getName());
